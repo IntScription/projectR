@@ -1,0 +1,24 @@
+// Copy to Config.local.xcconfig (gitignored) and fill in with `supabase start`
+// output, or your hosted project's values.
+//
+// NOTE: xcconfig treats `//` as a comment start, which breaks a bare URL.
+// The `$()` below is an empty macro expansion that splits the slashes so the
+// line parses correctly — it disappears once Xcode resolves the value.
+SUPABASE_URL = http:/$()/127.0.0.1:54421
+SUPABASE_ANON_KEY =
+
+// Sign in with Google needs a real OAuth client from Google Cloud Console
+// (an iOS client under your project). Leave blank until you have one — the
+// button is wired up but inert without these.
+GOOGLE_CLIENT_ID =
+GOOGLE_REVERSED_CLIENT_ID =
+
+// Base URL used to build share links (ShareLink, "Copy Link", etc). Point
+// this at the web app — locally that's the Next.js dev server; in
+// production it becomes https://projectr.app.
+SITE_URL = http:/$()/localhost:3000
+
+// Real crash reporting needs a Sentry project (free tier is fine) —
+// create one at sentry.io and paste its DSN here. Leave blank and
+// CrashReporter just logs locally instead of skipping silently.
+SENTRY_DSN =

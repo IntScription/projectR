@@ -1,0 +1,4 @@
+module forge_coreFFI {
+    header "forge_coreFFI.h"
+    export *
+}

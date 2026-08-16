@@ -1,0 +1,40 @@
+# --- Node / web ---
+node_modules/
+web/.next/
+web/out/
+web/.env.local
+web/.env*.local
+!web/.env.local.example
+web/*.tsbuildinfo
+web/next-env.d.ts
+
+# --- Xcode / iOS ---
+ios/*.xcodeproj/
+ios/Generated/
+ios/build/
+ios/DerivedData/
+ios/*.xcworkspace/
+**/xcuserdata/
+ios/Config.local.xcconfig
+!ios/Config.local.xcconfig.example
+ios/Config.production.xcconfig
+!ios/Config.production.xcconfig.example
+*.hmap
+*.ipa
+
+# --- Supabase ---
+supabase/.temp/
+supabase/.branches/
+supabase/.env
+supabase/.env.*.local
+!supabase/.env.example
+
+# --- Rust ---
+forge-core/target/
+
+# --- OS / editor ---
+.DS_Store
+.idea/
+.vscode/
+.claude/
+*.log

@@ -1,0 +1,105 @@
+name: ProjectR
+options:
+  bundleIdPrefix: com.mrk
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+configFiles:
+  Debug: Config.local.xcconfig
+  Release: Config.production.xcconfig
+
+packages:
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    from: 2.0.0
+  GoogleSignIn:
+    url: https://github.com/google/GoogleSignIn-iOS
+    from: 7.0.0
+  ForgeCoreKit:
+    path: ForgeCoreKit
+  Sentry:
+    url: https://github.com/getsentry/sentry-cocoa
+    from: 8.0.0
+
+targets:
+  ProjectR:
+    type: application
+    platform: iOS
+    sources:
+      - ProjectR
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mrk.projectr
+        PRODUCT_NAME: ProjectR
+        SWIFT_VERSION: "6.0"
+        CODE_SIGN_ENTITLEMENTS: ProjectR/ProjectR.entitlements
+        DEVELOPMENT_TEAM: 2S23H98K3T
+        CODE_SIGN_STYLE: Automatic
+        # Without this, the asset catalog compiler never registers our
+        # AccentColor set as the app's global tint, so SwiftUI silently
+        # falls back to system blue everywhere `Color.accentColor`/`.tint()`
+        # is used — this isn't automatic just from the color set existing.
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    # File-based Info.plist (rather than GENERATE_INFOPLIST_FILE) so the
+    # nested CFBundleURLTypes array Google Sign-In needs can be expressed
+    # directly. String values still get $(VAR) substitution from
+    # Config.local.xcconfig at build time, same as any Info.plist.
+    info:
+      path: Generated/Info.plist
+      properties:
+        CFBundleDisplayName: ProjectR
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        SupabaseURL: "$(SUPABASE_URL)"
+        SupabaseAnonKey: "$(SUPABASE_ANON_KEY)"
+        GoogleClientID: "$(GOOGLE_CLIENT_ID)"
+        SiteURL: "$(SITE_URL)"
+        SentryDSN: "$(SENTRY_DSN)"
+        NSFaceIDUsageDescription: "Unlock ProjectR with Face ID instead of typing your password."
+        NSCameraUsageDescription: "Take a photo or video to post to your story."
+        NSMicrophoneUsageDescription: "Record audio when you capture a video for your story."
+        CFBundleURLTypes:
+          - CFBundleURLName: com.mrk.projectr.google
+            CFBundleURLSchemes:
+              - "$(GOOGLE_REVERSED_CLIENT_ID)"
+          - CFBundleURLName: com.mrk.projectr.deeplink
+            CFBundleURLSchemes:
+              - projectr
+    dependencies:
+      - package: Supabase
+        product: Supabase
+      - package: GoogleSignIn
+        product: GoogleSignIn
+      - package: GoogleSignIn
+        product: GoogleSignInSwift
+      - package: ForgeCoreKit
+        product: ForgeCoreKit
+      - package: Sentry
+        product: Sentry
+      # ForgeCoreKit's Rust side now does real HTTPS networking (gix's
+      # clone, via reqwest+rustls) instead of just the trivial
+      # engine_status() round-trip — these are the system frameworks that
+      # networking + the system trust store (rustls-platform-verifier)
+      # link against on Apple platforms. A plain `cargo build` never
+      # needed them (it only produces a static library), but linking the
+      # full app does.
+      - sdk: SystemConfiguration.framework
+      - sdk: CFNetwork.framework
+      - sdk: Security.framework
+
+  ProjectRTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - ProjectRTests
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: ProjectR

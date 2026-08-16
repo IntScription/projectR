@@ -1,0 +1,22 @@
+// Copy to Config.production.xcconfig (gitignored) and fill in with the
+// production Supabase project's values (Settings > API in the dashboard).
+// Applied only to Release builds — see project.yml's `configFiles`.
+//
+// NOTE: xcconfig treats `//` as a comment start, which breaks a bare URL.
+// The `$()` below is an empty macro expansion that splits the slashes so the
+// line parses correctly — it disappears once Xcode resolves the value.
+SUPABASE_URL = https:/$()/YOUR_PROJECT_REF.supabase.co
+SUPABASE_ANON_KEY =
+
+// Same Google Cloud Console OAuth client as local dev unless you've set up
+// a separate one for production — the client ID isn't backend-specific, it
+// just needs the app's real bundle id / URL scheme registered against it.
+GOOGLE_CLIENT_ID =
+GOOGLE_REVERSED_CLIENT_ID =
+
+// The live web app's URL, used to build share links (ShareLink, "Copy
+// Link", etc).
+SITE_URL = https:/$()/projectr.app
+
+// Real Sentry project DSN for crash reporting — sentry.io.
+SENTRY_DSN =

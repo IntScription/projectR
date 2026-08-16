@@ -1,0 +1,35 @@
+name: forge-core
+
+# Rust regression coverage for the Forge Phase 2 local-git engine
+# (forge-core/, gix-based). Deliberately narrow — this doesn't rebuild the
+# XCFramework or the iOS app; that stays the manual
+# `forge-core/build-xcframework.sh` step, matching this seam's established
+# "prove it works, don't over-automate yet" approach.
+on:
+  push:
+    paths:
+      - "forge-core/**"
+  pull_request:
+    paths:
+      - "forge-core/**"
+
+jobs:
+  test:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: forge-core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-ios
+      - run: cargo test
+      - name: Build for aarch64-apple-ios
+        # Same fix build-xcframework.sh uses: aws-lc-sys's hand-written
+        # assembly routines emit a call to ___chkstk_darwin under Apple
+        # Clang's stack-check codegen, a symbol that doesn't exist on iOS —
+        # this only bites the device target, not the simulator.
+        env:
+          CFLAGS_aarch64_apple_ios: "-fno-stack-check"
+        run: cargo build --release --target aarch64-apple-ios

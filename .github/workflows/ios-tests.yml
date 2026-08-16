@@ -1,0 +1,59 @@
+name: ios-tests
+
+# Runs the real unit tests in ios/ProjectRTests (ForgeInsightsAnalysis,
+# PortfolioHTMLTemplate escaping, PortfolioProjectScorer, the
+# repo-analytics-snapshot date-decoding regression guard). Deliberately
+# just the test target — this doesn't attempt to sign or archive the app,
+# matching the same "prove it works, don't over-automate" restraint
+# forge-core.yml already uses for the Rust side.
+#
+# Assumes `ios/Vendor/ForgeCore.xcframework` is committed (generated
+# locally via `forge-core/build-xcframework.sh`, not rebuilt here) — this
+# workflow doesn't touch Rust at all.
+on:
+  push:
+    paths:
+      - "ios/**"
+  pull_request:
+    paths:
+      - "ios/**"
+
+jobs:
+  test:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: ios
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      # ios/Config.local.xcconfig is gitignored (real Supabase project
+      # values) — the test target never talks to a real backend (every
+      # test in ProjectRTests is pure logic/decoding, no network calls),
+      # so placeholder values are enough to let the app target compile.
+      - name: Write placeholder local config
+        run: |
+          cat > Config.local.xcconfig <<'EOF'
+          SUPABASE_URL = https:/$()/ci-placeholder.supabase.co
+          SUPABASE_ANON_KEY = ci-placeholder
+          GOOGLE_CLIENT_ID = ci-placeholder
+          GOOGLE_REVERSED_CLIENT_ID = ci-placeholder
+          SITE_URL = https:/$()/example.com
+          SENTRY_DSN =
+          EOF
+
+      - run: xcodegen generate
+
+      - name: Run tests
+        run: |
+          xcodebuild test \
+            -project ProjectR.xcodeproj \
+            -scheme ProjectRTests \
+            -destination 'platform=iOS Simulator,name=iPhone 16'

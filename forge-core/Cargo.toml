@@ -1,0 +1,32 @@
+[package]
+name = "forge-core"
+version = "0.1.0"
+edition = "2021"
+
+# Phase 2: real local git via `gix` (gitoxide), pure-Rust end to end.
+# `blocking-http-transport-reqwest` + the rustls variant is deliberate —
+# gix's *default* transport is curl-based (a C dependency); this feature
+# combination uses reqwest+rustls instead, which is what actually lets
+# this crate cross-compile for iOS without pulling in a second C
+# toolchain the way `git2`/libgit2 would have. No push/write-side network
+# protocol is used here (gix's isn't reliable yet) — syncing a local
+# commit to GitHub happens from Swift via the existing REST Git Data API.
+[lib]
+name = "forge_core"
+crate-type = ["staticlib", "cdylib", "lib"]
+
+[dependencies]
+gix = { version = "0.86.0", features = ["blocking-http-transport-reqwest", "blocking-http-transport-reqwest-rust-tls-trust-dns", "worktree-mutation", "tree-editor"] }
+similar = { version = "3.1.2", features = ["text"] }
+thiserror = "2.0.20"
+uniffi = { version = "0.28", features = ["cli"] }
+
+# Generates Swift bindings from the compiled library's own embedded metadata
+# (UniFFI "library mode") — no separate .udl interface-definition file to
+# keep in sync by hand.
+[[bin]]
+name = "uniffi-bindgen"
+path = "uniffi-bindgen.rs"
+
+[dev-dependencies]
+tempfile = "3.27.0"
