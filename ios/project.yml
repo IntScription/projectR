@@ -58,6 +58,7 @@ targets:
       path: Generated/Info.plist
       properties:
         CFBundleDisplayName: ProjectR
+        CFBundleVersion: "2"
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
