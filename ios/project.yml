@@ -36,6 +36,14 @@ targets:
         CODE_SIGN_ENTITLEMENTS: ProjectR/ProjectR.entitlements
         DEVELOPMENT_TEAM: 2S23H98K3T
         CODE_SIGN_STYLE: Automatic
+        # iPhone-only for now. Nothing in the app besides the pre-auth
+        # Welcome screen has ever been checked on iPad, and universal apps
+        # are required to declare full rotation support (portrait +
+        # landscape) for iPad multitasking — claiming that to Apple while
+        # the rest of the app has never run in landscape anywhere would be
+        # overclaiming, not a real launch-readiness state. Revisit once
+        # iPad support is actually built out and tested.
+        TARGETED_DEVICE_FAMILY: "1"
         # Without this, the asset catalog compiler never registers our
         # AccentColor set as the app's global tint, so SwiftUI silently
         # falls back to system blue everywhere `Color.accentColor`/`.tint()`
