@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "./site-header";
+import { SiteFooter } from "./site-footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -11,6 +12,17 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+// Headlines use this instead of the body face — same serif-display /
+// mono-wordmark pairing the iOS app's Welcome screen already established
+// ("See what people are building." in a bold serif under the tracked
+// mono "PROJECTR" wordmark), carried over here for one consistent brand
+// voice across both surfaces rather than reinventing it for the web.
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  axes: ["opsz", "SOFT", "WONK"],
 });
 
 export const metadata: Metadata = {
@@ -35,11 +47,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <SiteHeader />
         {children}
+        <SiteFooter />
       </body>
     </html>
   );

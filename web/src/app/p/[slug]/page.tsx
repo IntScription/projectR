@@ -55,7 +55,7 @@ export default async function ProjectPage({ params }: Props) {
             {project.category}
           </span>
         </div>
-        <h1 className="text-3xl font-semibold tracking-tight text-balance">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-balance">
           {project.name}
         </h1>
         {project.description && (

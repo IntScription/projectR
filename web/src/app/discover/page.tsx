@@ -24,7 +24,7 @@ export default async function DiscoverPage({ searchParams }: Props) {
         <p className="font-mono text-xs uppercase tracking-widest text-accent">
           Discover
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-balance">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-balance">
           See what people are building.
         </h1>
       </header>

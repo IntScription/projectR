@@ -67,7 +67,7 @@ export default async function ProfilePage({ params }: Props) {
           )}
         </div>
         <div>
-          <h1 className="text-2xl font-semibold">{profile.display_name}</h1>
+          <h1 className="font-display text-2xl font-semibold">{profile.display_name}</h1>
           <p className="font-mono text-sm text-accent">@{profile.username}</p>
         </div>
         {profile.bio && <p className="max-w-md text-muted">{profile.bio}</p>}

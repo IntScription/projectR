@@ -12,7 +12,7 @@ export default function SupportPage() {
         <p className="font-mono text-xs uppercase tracking-widest text-accent">
           Support
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight text-balance">
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-balance">
           Need help with ProjectR?
         </h1>
       </header>
