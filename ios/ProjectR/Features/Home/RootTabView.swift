@@ -6,6 +6,20 @@ struct RootTabView: View {
     let auth: AuthViewModel
     @Binding var profile: Profile
 
+    /// Only ever `true` right after a brand-new account finishes
+    /// onboarding (see `RootView`) — everyone else lands on Home as
+    /// usual. Threaded through a custom init since `selectedTab`'s
+    /// starting value has to be decided once, at creation, not reassigned
+    /// after the fact (that would fight whatever the user's already
+    /// tapped by the time a reassignment could run).
+    init(auth: AuthViewModel, profile: Binding<Profile>, startOnAddTab: Bool = false) {
+        self.auth = auth
+        self._profile = profile
+        let initialTab: Tab = startOnAddTab ? .add : .home
+        self._selectedTab = State(initialValue: initialTab)
+        self._visitedTabs = State(initialValue: [initialTab])
+    }
+
     enum Tab: CaseIterable {
         case home, discover, add, forge, chat, profile
 
@@ -32,8 +46,8 @@ struct RootTabView: View {
         }
     }
 
-    @State private var selectedTab: Tab = .home
-    @State private var visitedTabs: Set<Tab> = [.home]
+    @State private var selectedTab: Tab
+    @State private var visitedTabs: Set<Tab>
     @State private var homePath = NavigationPath()
     @State private var discoverPath = NavigationPath()
     @State private var forgePath = NavigationPath()
@@ -84,7 +98,7 @@ struct RootTabView: View {
         ZStack(alignment: .bottom) {
             ZStack {
                 tabContent(.home) {
-                    NavigationStack(path: $homePath) { HomeView() }
+                    NavigationStack(path: $homePath) { HomeView(profile: profile) }
                 }
                 tabContent(.discover) {
                     NavigationStack(path: $discoverPath) { DiscoverView() }
@@ -281,7 +295,14 @@ private struct FloatingTabBar: View {
     private let tabWidth: CGFloat = 60
     private let tabSpacing: CGFloat = 4
     private let outerPadding: CGFloat = 6
-    private let visibleTabCount: CGFloat = 4
+
+    /// Forge hidden (no GitHub connected yet) means only 5 tabs total —
+    /// small enough to show all of them at once with no scroll needed.
+    /// Once Forge appears (6 tabs), fall back to the usual capped-at-4,
+    /// scroll-for-the-rest bar rather than squeezing 6 icons into one row.
+    private var visibleTabCount: CGFloat {
+        tabs.count <= 5 ? CGFloat(tabs.count) : 4
+    }
 
     private var barWidth: CGFloat {
         visibleTabCount * tabWidth + (visibleTabCount - 1) * tabSpacing + 2 * outerPadding
@@ -295,9 +316,18 @@ private struct FloatingTabBar: View {
                 }
             }
             .padding(outerPadding)
+            .scrollTargetLayout()
         }
         .frame(width: barWidth)
-        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+        // `.always` (not `.basedOnSize`) so the first/last tab can still be
+        // dragged into a rubber-band overscroll even in the 5-tab state,
+        // where the bar's own width already fits every tab exactly — that
+        // elastic give is what makes the ends feel like real edges rather
+        // than a wall. `.viewAligned` is the "fixation": a drag always
+        // settles with some tab's slot fully aligned, including the very
+        // first/last one at each extreme, never a half-visible tab.
+        .scrollBounceBehavior(.always, axes: .horizontal)
+        .scrollTargetBehavior(.viewAligned)
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 22, style: .continuous)

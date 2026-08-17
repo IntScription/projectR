@@ -4,12 +4,6 @@ struct PrivacyPolicyView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                Text("Placeholder text — not yet reviewed by a lawyer. Replace before shipping to real users.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .padding(10)
-                    .background(.orange.opacity(0.15), in: RoundedRectangle(cornerRadius: 8))
-
                 LegalSection(title: "What we collect") {
                     Text(
                         "When you create a ProjectR account, we receive your email address from Apple, Google, or directly from you, depending on how you sign in. Your ProjectR profile — display name, username, bio, avatar, banner, and links — is created separately from that sign-in identity; your skill levels are computed automatically from your own projects, never typed in separately. Projects, updates, comments, and any photos or clips you upload are stored to power the app. Direct messages you send to other users are stored so both participants can read the conversation. If you enable notifications, we store a device token with Apple to deliver them. If you connect a GitHub account, we store your GitHub access token encrypted in a secured vault — it's used only to read public repository metadata and to fork repositories on your behalf, and is never exposed to other users. If you block another user or report content, we store that action (who, what, and why) so it can be reviewed. If the app crashes or hits an unexpected error, technical details (device type, OS version, a stack trace) are sent to our crash-reporting provider so we can fix it. We also record which features you use — e.g. that a project was created or a portfolio PDF was generated — in our own database, never a third-party analytics network."
@@ -45,7 +39,9 @@ struct PrivacyPolicyView: View {
                 }
 
                 LegalSection(title: "Contact") {
-                    Text("Questions about this policy: privacy@projectr.app (placeholder).")
+                    Text(
+                        "ProjectR is developed and operated by Kartik Sanil, an individual developer. Questions about this policy: 22kartiksanil@gmail.com."
+                    )
                 }
 
                 Text("Last updated: August 2026")

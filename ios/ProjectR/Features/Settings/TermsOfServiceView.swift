@@ -4,15 +4,9 @@ struct TermsOfServiceView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                Text("Placeholder text — not yet reviewed by a lawyer. Replace before shipping to real users.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-                    .padding(10)
-                    .background(.orange.opacity(0.15), in: RoundedRectangle(cornerRadius: 8))
-
                 LegalSection(title: "What ProjectR is") {
                     Text(
-                        "ProjectR is a place to showcase and share what you're building. Every piece of content — updates, comments, media — belongs to a project. There's no general-purpose posting unrelated to something you're building."
+                        "ProjectR is a place to showcase and share what you're building. Every piece of content — updates, comments, media — belongs to a project. There's no general-purpose posting unrelated to something you're building. ProjectR is developed and operated by Kartik Sanil, an individual developer, referred to as \"we\" or \"us\" in these terms."
                     )
                 }
 
@@ -53,11 +47,15 @@ struct TermsOfServiceView: View {
                 }
 
                 LegalSection(title: "Governing law") {
-                    Text("These terms are governed by the laws of [jurisdiction placeholder].")
+                    Text("These terms are governed by the laws of India.")
                 }
 
                 LegalSection(title: "Changes") {
                     Text("We may update these terms as the product evolves. Material changes will be reflected here.")
+                }
+
+                LegalSection(title: "Contact") {
+                    Text("Questions about these terms: 22kartiksanil@gmail.com.")
                 }
 
                 Text("Last updated: August 2026")

@@ -62,23 +62,18 @@ enum GitHubService {
     }
 
     /// Called from AuthViewModel's session-change listener whenever a
-    /// session carrying a fresh provider token comes through.
+    /// session carrying a fresh provider token comes through. The
+    /// `connect-github` Edge Function — not this client — fetches
+    /// GitHub's own `/user` record for this token and decides what
+    /// username gets stored, so `is_github_connected`'s verified checkmark
+    /// can never be spoofed by a client claiming a username it never
+    /// proved ownership of.
     static func captureToken(from session: Session) async {
         guard let token = session.providerToken else { return }
 
-        var username: String?
-        var request = URLRequest(url: URL(string: "https://api.github.com/user")!)
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        if let (data, _) = try? await URLSession.shared.data(for: request),
-            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
-        {
-            username = json["login"] as? String
-        }
-
         do {
-            try await SupabaseManager.shared.client
-                .rpc("set_my_github_access_token", params: SetTokenParams(token: token, username: username))
-                .execute()
+            try await SupabaseManager.shared.client.functions.invoke(
+                "connect-github", options: FunctionInvokeOptions(body: ["token": token]))
         } catch {
             // A silent failure here is worse than most — the user believes
             // GitHub is connected (the OAuth round trip itself succeeded)
@@ -248,11 +243,6 @@ enum GitHubServiceError: LocalizedError {
         case .forkFailed: "Couldn't fork this repository — it may already be forked, or GitHub rejected the request."
         }
     }
-}
-
-private struct SetTokenParams: Encodable {
-    let token: String
-    let username: String?
 }
 
 private struct TargetProfileParams: Encodable {

@@ -32,7 +32,7 @@ struct AboutView: View {
             .listRowBackground(Color.clear)
 
             Section {
-                Link(destination: URL(string: "mailto:support@projectr.app")!) {
+                Link(destination: URL(string: "mailto:22kartiksanil@gmail.com")!) {
                     Label("Contact support", systemImage: "envelope")
                 }
                 NavigationLink("Privacy Policy") { PrivacyPolicyView() }

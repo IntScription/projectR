@@ -5,13 +5,15 @@ import SwiftUI
 /// intentional search/trending/following. Reshuffles on pull-to-refresh.
 /// No `.navigationTitle` — the tab bar already says "Home".
 struct HomeView: View {
+    let profile: Profile
+
     @State private var projects: [DiscoverProject] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
 
     var body: some View {
         VStack(spacing: 0) {
-            StoriesRailView()
+            StoriesRailView(profile: profile)
             Group {
                 if isLoading && projects.isEmpty {
                     ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -9,6 +9,11 @@ struct OnboardingView: View {
     @State private var bio = ""
     @State private var isSaving = false
     @State private var errorMessage: String?
+    @State private var availability: Availability = .idle
+
+    private enum Availability: Equatable {
+        case idle, checking, available, taken, invalid
+    }
 
     var body: some View {
         ScrollView {
@@ -29,6 +34,7 @@ struct OnboardingView: View {
                             .autocorrectionDisabled()
                     }
                     .textFieldStyle(.roundedBorder)
+                    availabilityRow
                 }
 
                 labeledField("Display name") {
@@ -64,6 +70,51 @@ struct OnboardingView: View {
             }
             .padding(24)
         }
+        .task(id: username) { await checkAvailability() }
+    }
+
+    @ViewBuilder
+    private var availabilityRow: some View {
+        switch availability {
+        case .idle: EmptyView()
+        case .checking:
+            Label("Checking…", systemImage: "ellipsis.circle")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        case .available:
+            Label("Available", systemImage: "checkmark.circle.fill")
+                .font(.caption)
+                .foregroundStyle(.green)
+        case .taken:
+            Label("Username exists — pick another one", systemImage: "xmark.circle.fill")
+                .font(.caption)
+                .foregroundStyle(.red)
+        case .invalid:
+            Label("3-30 letters, numbers, or underscores", systemImage: "exclamationmark.circle")
+                .font(.caption)
+                .foregroundStyle(.orange)
+        }
+    }
+
+    private func checkAvailability() async {
+        let trimmed = username.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else {
+            availability = .idle
+            return
+        }
+        guard Validation.isValidUsername(trimmed) else {
+            availability = .invalid
+            return
+        }
+
+        availability = .checking
+        try? await Task.sleep(for: .milliseconds(400))
+        guard !Task.isCancelled else { return }
+
+        let taken =
+            (try? await Engagement.exists(table: "profiles", filters: ["username": trimmed]))
+            ?? true
+        availability = taken ? .taken : .available
     }
 
     @ViewBuilder
@@ -82,7 +133,7 @@ struct OnboardingView: View {
     }
 
     private var isValid: Bool {
-        Validation.isValidUsername(username)
+        availability == .available
             && !displayName.trimmingCharacters(in: .whitespaces).isEmpty
     }
 

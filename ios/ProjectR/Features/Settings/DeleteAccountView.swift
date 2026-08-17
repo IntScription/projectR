@@ -3,6 +3,13 @@ import SwiftUI
 struct DeleteAccountView: View {
     let profile: Profile
     let auth: AuthViewModel
+    /// `SettingsView`'s own `dismiss`, passed down rather than captured
+    /// here — this view is pushed *inside* the Settings sheet, so its own
+    /// `@Environment(\.dismiss)` would only pop back to Settings, not
+    /// close the sheet the same teardown race `SettingsView`'s sign-out
+    /// fix closes: closing the sheet has to happen before `auth.signOut()`
+    /// tears down the whole RootTabView hierarchy underneath it.
+    var onSuccess: () -> Void
 
     @State private var confirmationText = ""
     @State private var isDeleting = false
@@ -50,6 +57,7 @@ struct DeleteAccountView: View {
         defer { isDeleting = false }
         do {
             try await SupabaseManager.shared.client.functions.invoke("delete-account")
+            onSuccess()
             await auth.signOut()
         } catch {
             errorMessage = ErrorPresentation.message(for: error)

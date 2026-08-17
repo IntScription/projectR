@@ -8,7 +8,8 @@ import SwiftUI
 /// "people I follow" specifically is purely a client-side feed choice on
 /// top of that, same distinction the rest of the app draws elsewhere.
 struct StoriesRailView: View {
-    @State private var myProfile: Profile?
+    let profile: Profile
+
     @State private var myGroup: AuthorStoryGroup?
     @State private var followedGroups: [AuthorStoryGroup] = []
     @State private var isPresentingCaptureMenu = false
@@ -16,8 +17,6 @@ struct StoriesRailView: View {
     @State private var capturedKind: StoryMediaKind = .image
     @State private var isPresentingComposer = false
     @State private var selectedGroup: AuthorStoryGroup?
-
-    private var myID: UUID? { SupabaseManager.shared.client.auth.currentSession?.user.id }
 
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -36,8 +35,10 @@ struct StoriesRailView: View {
             isPresentingComposer = true
         }
         .fullScreenCover(isPresented: $isPresentingComposer) {
-            if let myID, let capturedMedia {
-                StoryComposerView(uploaderID: myID, mediaData: capturedMedia, mediaKind: capturedKind) {
+            if let capturedMedia {
+                StoryComposerView(
+                    uploaderID: profile.id, mediaData: capturedMedia, mediaKind: capturedKind
+                ) {
                     Task { await load() }
                 }
             }
@@ -46,7 +47,7 @@ struct StoriesRailView: View {
             StoryViewerView(
                 stories: group.stories, startIndex: 0, authorID: group.authorID,
                 authorUsername: group.authorUsername, authorDisplayName: group.authorDisplayName,
-                authorAvatarURL: group.authorAvatarURL, isOwnStory: group.authorID == myID,
+                authorAvatarURL: group.authorAvatarURL, isOwnStory: group.authorID == profile.id,
                 onDeleted: { _ in Task { await load() } }
             )
         }
@@ -64,8 +65,8 @@ struct StoriesRailView: View {
             VStack(spacing: 4) {
                 ZStack(alignment: .bottomTrailing) {
                     StoryRingAvatar(
-                        avatarURL: myProfile?.avatarURL,
-                        placeholderInitial: myProfile?.displayName ?? "?",
+                        avatarURL: profile.avatarURL,
+                        placeholderInitial: profile.displayName,
                         diameter: 56,
                         ringState: myGroup != nil ? .seen : .none
                     )
@@ -101,17 +102,14 @@ struct StoriesRailView: View {
     }
 
     private func load() async {
-        guard let myID else { return }
         let client = SupabaseManager.shared.client
+        let myID = profile.id
 
-        async let profileTask: Profile = client
-            .from("profiles").select().eq("id", value: myID).single().execute().value
-        async let followRowsTask: [FollowRow] = client
-            .from("follows").select("followee_profile_id").eq("follower_id", value: myID)
-            .execute().value
-
-        myProfile = try? await profileTask
-        let followedIDs = ((try? await followRowsTask) ?? []).compactMap(\.followeeProfileID)
+        let followRows: [FollowRow] =
+            (try? await client
+                .from("follows").select("followee_profile_id").eq("follower_id", value: myID)
+                .execute().value) ?? []
+        let followedIDs = followRows.compactMap(\.followeeProfileID)
         let relevantIDs = followedIDs + [myID]
 
         let items: [StoryFeedItem] =

@@ -86,7 +86,7 @@ struct SettingsView: View {
 
             Section {
                 NavigationLink("Delete Account") {
-                    DeleteAccountView(profile: profile, auth: auth)
+                    DeleteAccountView(profile: profile, auth: auth, onSuccess: dismiss.callAsFunction)
                 }
                 .foregroundStyle(.red)
             }
@@ -101,7 +101,16 @@ struct SettingsView: View {
         .confirmationDialog(
             "Sign out of ProjectR?", isPresented: $isPresentingSignOutConfirm, titleVisibility: .visible
         ) {
-            Button("Sign Out", role: .destructive) { Task { await auth.signOut() } }
+            // Settings is a sheet presented from deep inside RootTabView —
+            // signing out flips RootView over to WelcomeView, tearing down
+            // RootTabView (and everything under it) entirely. Dismissing
+            // this sheet first, before that swap happens, avoids leaving
+            // an active modal presentation attached to a view hierarchy
+            // that's about to disappear out from under it.
+            Button("Sign Out", role: .destructive) {
+                dismiss()
+                Task { await auth.signOut() }
+            }
         }
         .task {
             currentLevel = await ProfileLevelService.fetch(profileID: profile.id)?.level ?? 0
