@@ -6,11 +6,14 @@
 	<array>
 		<string>Default</string>
 	</array>
-	<!-- Needs the real deployed domain + AASA file with the real Team ID
-	     before verification actually succeeds — see README. -->
+	<!-- projectr.app was never registered/pointed anywhere, so Universal
+	     Links could never have verified against it. Pointed at the real,
+	     live Vercel deployment instead — swap back to a custom domain
+	     here (and in Config.production.xcconfig's SITE_URL) if
+	     projectr.app is ever actually purchased and DNS-configured. -->
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:projectr.app</string>
+		<string>applinks:web-navy-eight-82.vercel.app</string>
 	</array>
 	<!-- Real device push registration also needs a paid Apple Developer
 	     account (for the APNs key) — see PushRegistrar and the README. -->

@@ -2,7 +2,7 @@
   "applinks": {
     "details": [
       {
-        "appIDs": ["TEAMID.com.mrk.projectr"],
+        "appIDs": ["2S23H98K3T.com.mrk.projectr"],
         "paths": ["/p/*", "/@*"]
       }
     ]
